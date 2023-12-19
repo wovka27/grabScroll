@@ -4,7 +4,6 @@ class GrabScroll {
 
   constructor($el) {
     this.element = $el
-    this.element.style.cursor = 'grab'
     this.listeners = [
       ['mouseup', this.mouseUp],
       ['mouseleave', this.resetParams],
@@ -12,7 +11,7 @@ class GrabScroll {
       ['mousedown', this.mouseDown],
       ['mousewheel', this.mousewheel]
     ]
-
+    this.setCursorStyleValue('grab')
     this.init()
   }
 
