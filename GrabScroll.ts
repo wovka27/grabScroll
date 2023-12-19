@@ -1,38 +1,35 @@
-export default class GrabScroll {
-  private saved_page_x: number = 0
-  private saved_scroll_left: number = 0
-  private element: HTMLDivElement
-  private readonly listeners: Parameters<HTMLDivElement['addEventListener']>[]
+class GrabScroll {
+  #saved_page_x = 0
+  #saved_scroll_left = 0
 
-  constructor($el: HTMLDivElement) {
+  constructor($el) {
     this.element = $el
-    this.element.style.cursor = 'grab'
     this.listeners = [
       ['mouseup', this.mouseUp],
       ['mouseleave', this.resetParams],
-      ['mousemove', <EventListener>this.mouseMove],
-      ['mousedown', <EventListener>this.mouseDown],
-      ['mousewheel', <EventListener>this.mousewheel]
+      ['mousemove', this.mouseMove],
+      ['mousedown', this.mouseDown],
+      ['mousewheel', this.mousewheel]
     ]
-
+    this.setCursorStyleValue('grab')
     this.init()
   }
 
-  setCursorStyleValue = (value: string): void => {
+  setCursorStyleValue = (value) => {
     this.element.style.cursor = value
   }
-  setScrollLeftValue = (value: number): void => {
+  setScrollLeftValue = (value) => {
     this.element.scrollLeft = value
   }
-  setSavedPageXValue = (value: number): void => {
-    this.saved_page_x = value
+  setSavedPageXValue = (value) => {
+    this.#saved_page_x = value
   }
-  saveScrollLeftValue = (): void => {
-    this.saved_scroll_left = this.element.scrollLeft
+  saveScrollLeftValue = () => {
+    this.#saved_scroll_left = this.element.scrollLeft
   }
 
-  pointerEvents = (flag?: boolean): void => {
-    for (const child of <HTMLCollectionOf<HTMLDivElement>>this.element.children) {
+  pointerEvents = (flag) => {
+    for (const child of this.element.children) {
       if (flag) {
         child.style.pointerEvents = 'none'
       } else {
@@ -41,41 +38,41 @@ export default class GrabScroll {
     }
   }
 
-  mouseDown = (event: MouseEvent): void => {
+  mouseDown = (event) => {
     event.preventDefault()
     this.setSavedPageXValue(event.pageX)
     this.saveScrollLeftValue()
   }
 
-  mousewheel = (event: WheelEvent & { wheelDelta: number }): void => {
+  mousewheel = (event) => {
     event.preventDefault()
 
-    if (this.saved_page_x) return
+    if (this.#saved_page_x) return
 
-    const delta: number = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail)) * 100
+    const delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail)) * 100
     this.setScrollLeftValue(this.element.scrollLeft - delta)
     this.saveScrollLeftValue()
   }
 
-  resetParams = (): void => {
+  resetParams = () => {
     this.setSavedPageXValue(0)
     this.setCursorStyleValue('grab')
   }
-  mouseUp = (): void => {
+  mouseUp = () => {
     this.resetParams()
     this.pointerEvents()
   }
-  mouseMove = (event: MouseEvent): void => {
-    if (!this.saved_page_x) return
+  mouseMove = (event) => {
+    if (!this.#saved_page_x) return
 
     this.pointerEvents(true)
-    this.setScrollLeftValue(this.saved_scroll_left + this.saved_page_x - event.pageX)
+    this.setScrollLeftValue(this.#saved_scroll_left + this.#saved_page_x - event.pageX)
     this.setCursorStyleValue('grabbing')
   }
-  init = (): void => {
+  init = () => {
     this.listeners.forEach((listener) => this.element.addEventListener(...listener))
   }
-  destroy = (): void => {
+  destroy = () => {
     this.listeners.forEach((listener) => this.element.removeEventListener(...listener))
   }
 }
