@@ -2,8 +2,8 @@ class GrabScroll {
   #saved_page_x = 0
   #saved_scroll_left = 0
 
-  constructor($el) {
-    this.element = $el
+  constructor(el) {
+    this.$element = el
     this.listeners = [
       ['mouseup', this.mouseUp],
       ['mouseleave', this.resetParams],
@@ -13,65 +13,67 @@ class GrabScroll {
     ]
   }
 
-  getDelta = value => {
+  getDelta = (value) => {
     return Math.max(-1, Math.min(1, value)) * 100
   }
+
   setCursorStyleValue = (value = 'default') => {
-    this.element.style.cursor = value
+    this.$element.style.cursor = value
+    return this
   }
-  setScrollLeftValue = value => {
-    this.element.scrollLeft = value
+  setScrollLeftValue = (value) => {
+    this.$element.scrollLeft = value
+    return this
   }
-  setSavedPageXValue = value => {
+  setSavedPageXValue = (value) => {
     this.#saved_page_x = value
+    return this
   }
   saveScrollLeftValue = () => {
-    this.#saved_scroll_left = this.element.scrollLeft
+    this.#saved_scroll_left = this.$element.scrollLeft
+    return this
   }
 
   setElementChildrenPointerEvents = (value = 'auto') => {
-    for (const child of this.element.children) {
+    for (const child of this.$element.children) {
       child.style.pointerEvents = value
     }
+    return this
   }
 
-  mouseDown = event => {
+  resetParams = () => {
+    this.setSavedPageXValue(0).setCursorStyleValue('grab')
+    return this
+  }
+
+  mouseDown = (event) => {
     event.preventDefault()
-    
-    this.setSavedPageXValue(event.pageX)
-    this.saveScrollLeftValue()
+    this.setSavedPageXValue(event.pageX).saveScrollLeftValue()
   }
 
-  mousewheel = event => {
+  mousewheel = (event) => {
     event.preventDefault()
 
     if (this.#saved_page_x) return
 
-    this.setScrollLeftValue(this.element.scrollLeft - this.getDelta(event.wheelDelta || -event.detail))
-    this.saveScrollLeftValue()
+    this.scrollLeftValue = this.$element.scrollLeft - this.getDelta(event.wheelDelta || -event.detail)
+    this.setScrollLeftValue(this.scrollLeftValue).saveScrollLeftValue()
   }
 
-  resetParams = () => {
-    this.setSavedPageXValue(0)
-    this.setCursorStyleValue('grab')
-  }
   mouseUp = () => {
-    this.resetParams()
-    this.setElementChildrenPointerEvents()
+    this.resetParams().setElementChildrenPointerEvents()
   }
-  mouseMove = event => {
+  mouseMove = (event) => {
     if (!this.#saved_page_x) return
 
     this.setCursorStyleValue('grabbing')
-    this.setElementChildrenPointerEvents('none')
-    this.setScrollLeftValue(this.#saved_scroll_left + this.#saved_page_x - event.pageX)
+      .setElementChildrenPointerEvents('none')
+      .setScrollLeftValue(this.#saved_scroll_left + this.#saved_page_x - event.pageX)
   }
   init = () => {
-    this.setCursorStyleValue('grab')
-    this.listeners.forEach(listener => this.element.addEventListener(...listener))
+    this.setCursorStyleValue('grab').listeners.forEach((listener) => this.$element.addEventListener(...listener))
   }
   destroy = () => {
-    this.setCursorStyleValue()
-    this.listeners.forEach(listener => this.element.removeEventListener(...listener))
+    this.setCursorStyleValue().listeners.forEach((listener) => this.$element.removeEventListener(...listener))
   }
 }
