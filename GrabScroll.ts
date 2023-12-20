@@ -42,14 +42,16 @@ export default class GrabScroll {
     this.saveScrollLeftValue()
   }
 
+  getDelta = (value: number): number => {
+    return Math.max(-1, Math.min(1, value)) * 100
+  }
+
   mousewheel = (event: WheelEvent & { wheelDelta: number }): void => {
     event.preventDefault()
 
     if (this.saved_page_x) return
 
-    const ADJUSTMENT_VALUE = 100
-    const delta: number = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail)) * ADJUSTMENT_VALUE
-    this.setScrollLeftValue(this.element.scrollLeft - delta)
+    this.setScrollLeftValue(this.element.scrollLeft - this.getDelta(event.wheelDelta || -event.detail))
     this.saveScrollLeftValue()
   }
 
