@@ -47,7 +47,8 @@ export default class GrabScroll {
 
     if (this.saved_page_x) return
 
-    const delta: number = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail)) * 100
+    const ADJUSTMENT_VALUE = 100
+    const delta: number = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail)) * ADJUSTMENT_VALUE
     this.setScrollLeftValue(this.element.scrollLeft - delta)
     this.saveScrollLeftValue()
   }
