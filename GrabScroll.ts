@@ -1,4 +1,4 @@
-export default class GrabScroll {
+class GrabScroll {
   private saved_page_x: number = 0
   private saved_scroll_left: number = 0
   private element: HTMLDivElement
