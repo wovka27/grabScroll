@@ -5,15 +5,25 @@ export default class GrabScroll {
   private $element: HTMLDivElement
   private readonly listeners: Parameters<HTMLDivElement['addEventListener']>[]
 
-  constructor(el: HTMLDivElement) {
-    this.$element = el
+  constructor(options: { el: HTMLDivElement; wheelEvent?: boolean }) {
+    this.$element = options.el
     this.listeners = [
       ['mouseup', this.mouseUp],
       ['mouseleave', this.resetParams],
       ['mousemove', <EventListener>this.mouseMove],
-      ['mousedown', <EventListener>this.mouseDown],
-      ['mousewheel', <EventListener>this.mousewheel]
+      ['mousedown', <EventListener>this.mouseDown]
     ]
+
+    this.addEventByCondition([
+      [
+        options.wheelEvent,
+        [/Firefox/i.test(navigator.userAgent) ? 'DOMMouseScroll' : 'mousewheel', <EventListener>this.mousewheel]
+      ]
+    ])
+  }
+
+  addEventByCondition = (values: [boolean | undefined, Parameters<HTMLDivElement['addEventListener']>][]): void => {
+    values.forEach(([flag, event]) => flag && this.listeners.push(event))
   }
 
   getDelta = (value: number): number => {
@@ -36,12 +46,10 @@ export default class GrabScroll {
     this.saved_scroll_left = this.$element.scrollLeft
     return this
   }
-  
   resetParams: GrabScrollMethodType = () => {
     this.setSavedPageXValue(0).setCursorStyleValue('grab')
     return this
   }
-
 
   setElementChildrenPointerEvents: GrabScrollMethodType = (value: string = 'auto') => {
     for (const child of <HTMLCollectionOf<HTMLDivElement>>this.$element.children) {
@@ -68,7 +76,6 @@ export default class GrabScroll {
   mouseUp = (): void => {
     this.resetParams().setElementChildrenPointerEvents()
   }
-  
   mouseMove = (event: MouseEvent): void => {
     if (!this.saved_page_x) return
 
@@ -76,14 +83,10 @@ export default class GrabScroll {
       .setElementChildrenPointerEvents('none')
       .setScrollLeftValue(this.saved_scroll_left + this.saved_page_x - event.pageX)
   }
-  
   init = (): void => {
-    this.setCursorStyleValue('grab')
-    this.listeners.forEach((listener) => this.$element.addEventListener(...listener))
+    this.setCursorStyleValue('grab').listeners.forEach((listener) => this.$element.addEventListener(...listener))
   }
-  
   destroy = (): void => {
-    this.setCursorStyleValue()
-    this.listeners.forEach((listener) => this.$element.removeEventListener(...listener))
+    this.setCursorStyleValue().listeners.forEach((listener) => this.$element.removeEventListener(...listener))
   }
 }
