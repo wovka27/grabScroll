@@ -2,15 +2,25 @@ class GrabScroll {
   #saved_page_x = 0
   #saved_scroll_left = 0
 
-  constructor(el) {
-    this.$element = el
+  constructor(options) {
+    this.$element = options.el
     this.listeners = [
       ['mouseup', this.mouseUp],
       ['mouseleave', this.resetParams],
       ['mousemove', this.mouseMove],
-      ['mousedown', this.mouseDown],
-      [(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel" , this.mousewheel]
+      ['mousedown', this.mouseDown]
     ]
+
+    this.addEventByCondition([
+      [
+        options.wheelEvent,
+        [/Firefox/i.test(navigator.userAgent) ? 'DOMMouseScroll' : 'mousewheel', this.mousewheel]
+      ]
+    ])
+  }
+
+  addEventByCondition = (values) => {
+    values.forEach(([flag, event]) => flag && this.listeners.push(event))
   }
 
   getDelta = (value) => {
@@ -33,16 +43,15 @@ class GrabScroll {
     this.#saved_scroll_left = this.$element.scrollLeft
     return this
   }
+  resetParams = () => {
+    this.setSavedPageXValue(0).setCursorStyleValue('grab')
+    return this
+  }
 
   setElementChildrenPointerEvents = (value = 'auto') => {
     for (const child of this.$element.children) {
       child.style.pointerEvents = value
     }
-    return this
-  }
-
-  resetParams = () => {
-    this.setSavedPageXValue(0).setCursorStyleValue('grab')
     return this
   }
 
@@ -56,8 +65,9 @@ class GrabScroll {
 
     if (this.#saved_page_x) return
 
-    this.scrollLeftValue = this.$element.scrollLeft - this.getDelta(event.wheelDelta || -event.detail)
-    this.setScrollLeftValue(this.scrollLeftValue).saveScrollLeftValue()
+    this.setScrollLeftValue(
+      this.$element.scrollLeft - this.getDelta(event.wheelDelta || -event.detail)
+    ).saveScrollLeftValue()
   }
 
   mouseUp = () => {
