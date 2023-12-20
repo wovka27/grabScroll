@@ -30,9 +30,9 @@ export default class GrabScroll {
     this.saved_scroll_left = this.element.scrollLeft
   }
 
-  setElementChildrenPointerEvents = (flag?: boolean): void => {
+  setElementChildrenPointerEvents = (value: string = 'auto'): void => {
     for (const child of <HTMLCollectionOf<HTMLDivElement>>this.element.children) {
-      child.style.pointerEvents = flag ? 'none' : 'auto'
+      child.style.pointerEvents = value
     }
   }
 
@@ -64,7 +64,7 @@ export default class GrabScroll {
     if (!this.saved_page_x) return
 
     this.setCursorStyleValue('grabbing')
-    this.setElementChildrenPointerEvents(true)
+    this.setElementChildrenPointerEvents('none')
     this.setScrollLeftValue(this.saved_scroll_left + this.saved_page_x - event.pageX)
   }
   init = (): void => {
