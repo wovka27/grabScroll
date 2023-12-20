@@ -15,7 +15,6 @@ export default class GrabScroll {
     ]
 
     this.setCursorStyleValue('grab')
-    this.init()
   }
 
   setCursorStyleValue = (value: string): void => {
