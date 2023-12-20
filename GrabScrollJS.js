@@ -13,6 +13,9 @@ class GrabScroll {
     ]
   }
 
+  getDelta = value => {
+    return Math.max(-1, Math.min(1, value)) * 100
+  }
   setCursorStyleValue = (value = 'default') => {
     this.element.style.cursor = value
   }
@@ -34,12 +37,9 @@ class GrabScroll {
 
   mouseDown = event => {
     event.preventDefault()
+    
     this.setSavedPageXValue(event.pageX)
     this.saveScrollLeftValue()
-  }
-
-  getDelta = value => {
-    return Math.max(-1, Math.min(1, value)) * 100
   }
 
   mousewheel = event => {
