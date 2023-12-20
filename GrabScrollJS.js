@@ -9,7 +9,7 @@ class GrabScroll {
       ['mouseleave', this.resetParams],
       ['mousemove', this.mouseMove],
       ['mousedown', this.mouseDown],
-      ['mousewheel', this.mousewheel]
+      [(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel" , this.mousewheel]
     ]
   }
 
