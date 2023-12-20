@@ -13,11 +13,9 @@ export default class GrabScroll {
       ['mousedown', <EventListener>this.mouseDown],
       ['mousewheel', <EventListener>this.mousewheel]
     ]
-
-    this.setCursorStyleValue('grab')
   }
 
-  setCursorStyleValue = (value: string): void => {
+  setCursorStyleValue = (value: string = 'default'): void => {
     this.element.style.cursor = value
   }
   setScrollLeftValue = (value: number): void => {
@@ -71,9 +69,11 @@ export default class GrabScroll {
     this.setScrollLeftValue(this.saved_scroll_left + this.saved_page_x - event.pageX)
   }
   init = (): void => {
+    this.setCursorStyleValue('grab')
     this.listeners.forEach((listener) => this.element.addEventListener(...listener))
   }
   destroy = (): void => {
+    this.setCursorStyleValue()
     this.listeners.forEach((listener) => this.element.removeEventListener(...listener))
   }
 }
