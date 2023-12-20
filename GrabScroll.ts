@@ -36,6 +36,12 @@ export default class GrabScroll {
     this.saved_scroll_left = this.$element.scrollLeft
     return this
   }
+  
+  resetParams: GrabScrollMethodType = () => {
+    this.setSavedPageXValue(0).setCursorStyleValue('grab')
+    return this
+  }
+
 
   setElementChildrenPointerEvents: GrabScrollMethodType = (value: string = 'auto') => {
     for (const child of <HTMLCollectionOf<HTMLDivElement>>this.$element.children) {
@@ -59,13 +65,10 @@ export default class GrabScroll {
     ).saveScrollLeftValue()
   }
 
-  resetParams: GrabScrollMethodType = () => {
-    this.setSavedPageXValue(0).setCursorStyleValue('grab')
-    return this
-  }
   mouseUp = (): void => {
     this.resetParams().setElementChildrenPointerEvents()
   }
+  
   mouseMove = (event: MouseEvent): void => {
     if (!this.saved_page_x) return
 
@@ -73,10 +76,12 @@ export default class GrabScroll {
       .setElementChildrenPointerEvents('none')
       .setScrollLeftValue(this.saved_scroll_left + this.saved_page_x - event.pageX)
   }
+  
   init = (): void => {
     this.setCursorStyleValue('grab')
     this.listeners.forEach((listener) => this.$element.addEventListener(...listener))
   }
+  
   destroy = (): void => {
     this.setCursorStyleValue()
     this.listeners.forEach((listener) => this.$element.removeEventListener(...listener))
